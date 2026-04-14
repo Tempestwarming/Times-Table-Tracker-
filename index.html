@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Times Table Diagnostic</title>
+  <style>
+    :root {
+      --panel: #f8f7f1;
+      --text: #111111;
+      --muted: #3d4b4a;
+      --border-dark: rgba(0, 0, 0, 0.14);
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+      --radius: 24px;
+      --bg1: #d8f3f1;
+      --bg2: #e7f7ff;
+      --bg3: #eadfff;
+      --bg4: #ffe3f1;
+      --cyan1: #36c7d8;
+      --cyan2: #56e0d0;
+      --blue: #4ca9ff;
+      --violet: #8f8dff;
+      --pink: #ff9bd1;
+      --green: #48b56b;
+      --amber: #f0ad3d;
+      --red: #d84f5f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Verdana, "Trebuchet MS", sans-serif;
+      color: var(--text);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 10px;
+      overflow: hidden;
+      position: relative;
+      background:
+        radial-gradient(circle at top left, rgba(91, 211, 219, 0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(39, 142, 214, 0.14), transparent 35%),
+        linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 38%, var(--bg3) 68%, var(--bg4) 100%);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -18%;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: screen;
+    }
+
+    body::before {
+      background:
+        radial-gradient(circle at 16% 24%, rgba(88, 224, 215, 0.44) 0%, rgba(88, 224, 215, 0.18) 12%, transparent 28%),
+        radial-gradient(circle at 76% 26%, rgba(84, 196, 255, 0.38) 0%, rgba(84, 196, 255, 0.14) 14%, transparent 30%),
+        radial-gradient(circle at 48% 76%, rgba(183, 143, 255, 0.34) 0%, rgba(183, 143, 255, 0.12) 14%, transparent 30%),
+        radial-gradient(circle at 82% 72%, rgba(255, 148, 207, 0.28) 0%, rgba(255, 148, 207, 0.10) 12%, transparent 26%);
+      animation: rippleDriftOne 9s ease-in-out infinite alternate;
+      filter: blur(26px);
+      opacity: 0.9;
+    }
+
+    body::after {
+      background:
+        radial-gradient(circle at 24% 72%, rgba(92, 231, 215, 0.28) 0%, rgba(92, 231, 215, 0.10) 12%, transparent 26%),
+        radial-gradient(circle at 68% 16%, rgba(170, 139, 255, 0.26) 0%, rgba(170, 139, 255, 0.10) 12%, transparent 26%),
+        radial-gradient(circle at 58% 58%, rgba(255, 171, 220, 0.24) 0%, rgba(255, 171, 220, 0.08) 12%, transparent 24%),
+        radial-gradient(circle at 90% 44%, rgba(82, 180, 255, 0.24) 0%, rgba(82, 180, 255, 0.08) 12%, transparent 24%);
+      animation: rippleDriftTwo 11s ease-in-out infinite alternate;
+      filter: blur(42px);
+      opacity: 0.8;
+    }
+
+    .app-shell {
+      width: min(1500px, 100%);
+      min-height: calc(100vh - 20px);
+      border-radius: 30px;
+      padding: 4px;
+      background: linear-gradient(
+        120deg,
+        var(--cyan1),
+        var(--cyan2),
+        var(--blue),
+        var(--violet),
+        var(--pink),
+        #54d6e6,
+        var(--cyan1)
+      );
+      background-size: 400% 400%;
+      animation: shimmerFlow 7s linear infinite;
+      box-shadow: 0 24px 60px rgba(14, 84, 110, 0.22);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        110deg,
+        transparent 18%,
+        rgba(255, 255, 255, 0.40) 34%,
+        transparent 50%
+      );
+      transform: translateX(-120%);
+      animation: shimmerSweep 4.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .app-frame {
+      position: relative;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(6px);
+      border-radius: 26px;
+      padding: 16px;
+      min-height: calc(100vh - 28px);
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 14px;
+    }
+
+    .date-time-bar {
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 20px;
+      padding: 16px 22px;
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111111;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .title-bar {
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 20px;
+      padding: 16px 22px;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1.45fr 0.95fr;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--border-dark);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      min-height: 0;
+    }
+
+    .left-panel {
+      display: grid;
+      grid-template-rows: auto auto auto 1fr auto auto;
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .mode-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .button {
+      border: none;
+      border-radius: 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+      white-space: nowrap;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #54d6e6, #2f9fd2);
+      color: #0c1b21;
+      box-shadow: 0 10px 24px rgba(41, 137, 175, 0.28);
+      width: 100%;
+      min-height: 54px;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(41, 137, 175, 0.34);
+      filter: brightness(1.03);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button.secondary {
+      background: linear-gradient(135deg, #cfeef1, #9edbe8);
+    }
+
+    .button.danger {
+      background: linear-gradient(135deg, #e15a5a, #b4202f, #7f1321);
+      color: #ffffff;
+    }
+
+    .button.active-mode {
+      outline: 4px solid rgba(76, 169, 255, 0.18);
+    }
+
+    .status-strip {
+      background: rgba(248, 247, 241, 0.95);
+      border: 2px dashed rgba(0, 0, 0, 0.15);
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      color: var(--muted);
+      text-align: center;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .question-card {
+      background: var(--panel);
+      border: 2px solid rgba(0, 0, 0, 0.12);
+      border-radius: 22px;
+      padding: 20px;
+      text-align: center;
+      min-height: 150px;
+      display: grid;
+      align-content: center;
+      gap: 10px;
+    }
+
+    .question-label {
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .question-text {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.05;
+    }
+
+    .timer-wrap {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .countdown-bar-outer {
+      position: relative;
+      height: 22px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(248, 247, 241, 0.95);
+      border: 2px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .countdown-bar-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 100%;
+      background: linear-gradient(90deg, #79e5d9 0%, #39b8df 65%, #2b98d4 100%);
+      transition: width 0.2s linear;
+    }
+
+    .countdown-bar-fill.warning {
+      background: linear-gradient(90deg, #ffe38a 0%, #ffc85a 50%, #ff9f43 100%);
+    }
+
+    .countdown-bar-fill.danger {
+      background: linear-gradient(90deg, #ffb3a8 0%, #ff7d73 55%, #f04f4f 100%);
+    }
+
+    .timer-box {
+      background: var(--panel);
+      border: 2px solid rgba(0, 0, 0, 0.12);
+      border-radius: 18px;
+      padding: 10px 14px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .answer-panel {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      min-height: 0;
+      align-items: stretch;
+    }
+
+    .answer-display {
+      background: var(--panel);
+      border: 2px solid rgba(0, 0, 0, 0.12);
+      border-radius: 22px;
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 14px 18px;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      overflow: hidden;
+    }
+
+    .submit-column {
+      display: grid;
+      gap: 10px;
+      width: 140px;
+    }
+
+    .submit-column .button {
+      min-height: 78px;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .keypad button {
+      border: none;
+      border-radius: 18px;
+      min-height: 72px;
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #eef7f9);
+      color: var(--text);
+      box-shadow: 0 10px 24px rgba(41, 137, 175, 0.12);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+
+    .keypad button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(41, 137, 175, 0.18);
+      filter: brightness(1.02);
+    }
+
+    .keypad button:active {
+      transform: translateY(0);
+    }
+
+    .right-panel {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .right-title {
+      background: var(--panel);
+      border: 2px solid rgba(0, 0, 0, 0.12);
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      align-content: start;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .table-card {
+      border: none;
+      border-radius: 18px;
+      min-height: 92px;
+      padding: 10px;
+      cursor: pointer;
+      color: #111;
+      box-shadow: 0 10px 24px rgba(41, 137, 175, 0.10);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+      display: grid;
+      align-content: center;
+      gap: 6px;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .table-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(41, 137, 175, 0.18);
+      filter: brightness(1.02);
+    }
+
+    .table-number {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .table-stats {
+      font-size: 0.86rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .table-mastered {
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .selected-table {
+      outline: 4px solid rgba(76, 169, 255, 0.24);
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    .legend span {
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-weight: 700;
+      background: rgba(248, 247, 241, 0.95);
+      border: 1px solid rgba(0, 0, 0, 0.10);
+    }
+
+    .bottom-notes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .note-box {
+      background: rgba(248, 247, 241, 0.95);
+      border: 2px dashed rgba(0, 0, 0, 0.15);
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: 0.92rem;
+      line-height: 1.3;
+      color: var(--muted);
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    @keyframes shimmerFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes shimmerSweep {
+      0% { transform: translateX(-120%); }
+      55% { transform: translateX(120%); }
+      100% { transform: translateX(120%); }
+    }
+
+    @keyframes rippleDriftOne {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      25% { transform: translate3d(3%, -2%, 0) scale(1.06); }
+      50% { transform: translate3d(-2%, 3%, 0) scale(1.1); }
+      75% { transform: translate3d(2%, 2%, 0) scale(1.05); }
+      100% { transform: translate3d(-3%, -2%, 0) scale(1.08); }
+    }
+
+    @keyframes rippleDriftTwo {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      25% { transform: translate3d(-3%, 2%, 0) scale(1.08); }
+      50% { transform: translate3d(2%, -3%, 0) scale(1.12); }
+      75% { transform: translate3d(-2%, -1%, 0) scale(1.06); }
+      100% { transform: translate3d(3%, 2%, 0) scale(1.1); }
+    }
+
+    @media (max-width: 1100px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .bottom-notes {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 800px) {
+      body {
+        padding: 8px;
+      }
+
+      .app-frame {
+        min-height: calc(100vh - 16px);
+      }
+
+      .mode-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .timer-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .answer-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .submit-column {
+        width: 100%;
+        grid-template-columns: 1fr 1fr;
+        display: grid;
+      }
+
+      .tables-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .keypad button {
+        min-height: 64px;
+      }
+
+      .question-text {
+        font-size: 2.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app-frame">
+      <div class="date-time-bar" id="dateTimeBar">Tuesday the 14th of April 2026 • 09:00</div>
+
+      <div class="title-bar">Times Table Diagnostic</div>
+
+      <main class="main-layout">
+        <section class="panel left-panel">
+          <div class="mode-bar">
+            <button class="button active-mode" id="startDiagnosticButton" type="button">Start Diagnostic</button>
+            <button class="button secondary" id="randomPracticeButton" type="button">Random Practice</button>
+            <button class="button secondary" id="resetProgressButton" type="button">Reset Progress</button>
+            <button class="button danger" id="stopSessionButton" type="button">Stop Session</button>
+          </div>
+
+          <div class="status-strip" id="statusStrip">
+            Diagnostic mode checks fluency across the 1 to 12 times tables. You have 8 seconds per question.
+          </div>
+
+          <div class="question-card">
+            <div class="question-label" id="questionModeLabel">Ready</div>
+            <div class="question-text" id="questionText">Press Start</div>
+          </div>
+
+          <div class="timer-wrap">
+            <div class="countdown-bar-outer">
+              <div class="countdown-bar-fill" id="countdownBarFill"></div>
+            </div>
+            <div class="timer-box" id="countdownText">08s</div>
+          </div>
+
+          <div class="answer-panel">
+            <div class="answer-display" id="answerDisplay">0</div>
+            <div class="submit-column">
+              <button class="button" id="submitAnswerButton" type="button">Submit</button>
+              <button class="button secondary" id="clearAnswerButton" type="button">Clear</button>
+            </div>
+          </div>
+
+          <div class="keypad" id="keypad">
+            <button type="button" data-key="1">1</button>
+            <button type="button" data-key="2">2</button>
+            <button type="button" data-key="3">3</button>
+            <button type="button" data-key="4">4</button>
+            <button type="button" data-key="5">5</button>
+            <button type="button" data-key="6">6</button>
+            <button type="button" data-key="7">7</button>
+            <button type="button" data-key="8">8</button>
+            <button type="button" data-key="9">9</button>
+            <button type="button" data-key="⌫">⌫</button>
+            <button type="button" data-key="0">0</button>
+            <button type="button" data-key="↵">↵</button>
+          </div>
+        </section>
+
+        <aside class="panel right-panel">
+          <div class="right-title">
+            Tap a table to practise it
+          </div>
+
+          <div class="tables-grid" id="tablesGrid"></div>
+
+          <div class="legend">
+            <span style="background:#e6f6ea;">Green = secure</span>
+            <span style="background:#fff3df;">Amber = mixed</span>
+            <span style="background:#fde8ea;">Red = needs work</span>
+          </div>
+        </aside>
+      </main>
+
+      <div class="bottom-notes">
+        <div class="note-box" id="sessionNote">
+          A quick answer window of 8 seconds is used for fluency. If time runs out, it counts as not secure.
+        </div>
+        <div class="note-box" id="summaryNote">
+          Work through the diagnostic first, then tap any weak table on the right to practise it until it turns green.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "times_table_diagnostic_v1";
+    const QUESTION_TIME_SECONDS = 8;
+    const DIAGNOSTIC_QUESTIONS_PER_TABLE = 3;
+    const PRACTICE_TARGET_GREEN = 0.8;
+    const TABLES = Array.from({ length: 12 }, (_, i) => i + 1);
+
+    const dateTimeBar = document.getElementById("dateTimeBar");
+    const statusStrip = document.getElementById("statusStrip");
+    const questionModeLabel = document.getElementById("questionModeLabel");
+    const questionText = document.getElementById("questionText");
+    const countdownBarFill = document.getElementById("countdownBarFill");
+    const countdownText = document.getElementById("countdownText");
+    const answerDisplay = document.getElementById("answerDisplay");
+    const tablesGrid = document.getElementById("tablesGrid");
+
+    const startDiagnosticButton = document.getElementById("startDiagnosticButton");
+    const randomPracticeButton = document.getElementById("randomPracticeButton");
+    const resetProgressButton = document.getElementById("resetProgressButton");
+    const stopSessionButton = document.getElementById("stopSessionButton");
+    const submitAnswerButton = document.getElementById("submitAnswerButton");
+    const clearAnswerButton = document.getElementById("clearAnswerButton");
+
+    const keypad = document.getElementById("keypad");
+    const sessionNote = document.getElementById("sessionNote");
+    const summaryNote = document.getElementById("summaryNote");
+
+    let state = {
+      mode: "idle",
+      currentTable: null,
+      selectedTable: null,
+      currentQuestion: null,
+      currentAnswer: "",
+      timerRemaining: QUESTION_TIME_SECONDS,
+      timerInterval: null,
+      diagnosticQueue: [],
+      stats: {}
+    };
+
+    function buildDefaultStats() {
+      const stats = {};
+      TABLES.forEach(table => {
+        stats[table] = {
+          asked: 0,
+          correct: 0,
+          timeout: 0
+        };
+      });
+      return stats;
+    }
+
+    function saveState() {
+      const safeState = {
+        mode: state.mode,
+        currentTable: state.currentTable,
+        selectedTable: state.selectedTable,
+        currentQuestion: state.currentQuestion,
+        currentAnswer: state.currentAnswer,
+        timerRemaining: state.timerRemaining,
+        diagnosticQueue: state.diagnosticQueue,
+        stats: state.stats
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(safeState));
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          state.stats = buildDefaultStats();
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        state.mode = parsed.mode || "idle";
+        state.currentTable = parsed.currentTable ?? null;
+        state.selectedTable = parsed.selectedTable ?? null;
+        state.currentQuestion = parsed.currentQuestion ?? null;
+        state.currentAnswer = parsed.currentAnswer ?? "";
+        state.timerRemaining = typeof parsed.timerRemaining === "number" ? parsed.timerRemaining : QUESTION_TIME_SECONDS;
+        state.diagnosticQueue = Array.isArray(parsed.diagnosticQueue) ? parsed.diagnosticQueue : [];
+        state.stats = parsed.stats || buildDefaultStats();
+      } catch (error) {
+        state.stats = buildDefaultStats();
+      }
+    }
+
+    function getOrdinal(day) {
+      if (day > 3 && day < 21) return "th";
+      switch (day % 10) {
+        case 1: return "st";
+        case 2: return "nd";
+        case 3: return "rd";
+        default: return "th";
+      }
+    }
+
+    function updateDateTime() {
+      const now = new Date();
+      const weekday = now.toLocaleDateString("en-GB", { weekday: "long" });
+      const month = now.toLocaleDateString("en-GB", { month: "long" });
+      const year = now.getFullYear();
+      const day = now.getDate();
+      const time = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+      dateTimeBar.textContent = `${weekday} the ${day}${getOrdinal(day)} of ${month} ${year} • ${time}`;
+    }
+
+    function setModeButtons() {
+      startDiagnosticButton.classList.toggle("active-mode", state.mode === "diagnostic");
+      randomPracticeButton.classList.toggle("active-mode", state.mode === "practice");
+    }
+
+    function getMastery(table) {
+      const stat = state.stats[table];
+      if (!stat || stat.asked === 0) return 0;
+      return stat.correct / stat.asked;
+    }
+
+    function getTableColour(table) {
+      const stat = state.stats[table];
+      if (!stat || stat.asked === 0) return "#eef7f9";
+      const mastery = getMastery(table);
+      if (mastery >= PRACTICE_TARGET_GREEN) return "#dff4e6";
+      if (mastery >= 0.45) return "#fff1da";
+      return "#fde5e8";
+    }
+
+    function renderTables() {
+      tablesGrid.innerHTML = "";
+      TABLES.forEach(table => {
+        const stat = state.stats[table];
+        const mastery = getMastery(table);
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "table-card";
+        if (state.selectedTable === table) {
+          card.classList.add("selected-table");
+        }
+        card.style.background = getTableColour(table);
+
+        const number = document.createElement("div");
+        number.className = "table-number";
+        number.textContent = `${table}×`;
+
+        const stats = document.createElement("div");
+        stats.className = "table-stats";
+        stats.textContent = `${stat.correct}/${stat.asked || 0} correct`;
+
+        const masteryText = document.createElement("div");
+        masteryText.className = "table-mastered";
+        masteryText.textContent = stat.asked ? `${Math.round(mastery * 100)}% secure` : "Not checked";
+
+        card.appendChild(number);
+        card.appendChild(stats);
+        card.appendChild(masteryText);
+
+        card.addEventListener("click", () => {
+          startTablePractice(table);
+        });
+
+        tablesGrid.appendChild(card);
+      });
+    }
+
+    function updateAnswerDisplay() {
+      answerDisplay.textContent = state.currentAnswer === "" ? "0" : state.currentAnswer;
+    }
+
+    function updateCountdownBar() {
+      const ratio = Math.max(0, Math.min(1, state.timerRemaining / QUESTION_TIME_SECONDS));
+      countdownBarFill.style.width = `${ratio * 100}%`;
+      countdownBarFill.classList.remove("warning", "danger");
+
+      if (ratio <= 0.25) {
+        countdownBarFill.classList.add("danger");
+      } else if (ratio <= 0.5) {
+        countdownBarFill.classList.add("warning");
+      }
+
+      countdownText.textContent = `${state.timerRemaining}s`;
+    }
+
+    function setStatus(text) {
+      statusStrip.textContent = text;
+    }
+
+    function stopQuestionTimer() {
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+    }
+
+    function buildDiagnosticQueue() {
+      const queue = [];
+      TABLES.forEach(table => {
+        for (let i = 0; i < DIAGNOSTIC_QUESTIONS_PER_TABLE; i++) {
+          const other = Math.floor(Math.random() * 12) + 1;
+          queue.push({ table, factor: other });
+        }
+      });
+      for (let i = queue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [queue[i], queue[j]] = [queue[j], queue[i]];
+      }
+      return queue;
+    }
+
+    function makeQuestion(table = null) {
+      const chosenTable = table ?? Math.floor(Math.random() * 12) + 1;
+      const factor = Math.floor(Math.random() * 12) + 1;
+      return {
+        table: chosenTable,
+        factor,
+        answer: chosenTable * factor
+      };
+    }
+
+    function showCurrentQuestion() {
+      if (!state.currentQuestion) {
+        questionModeLabel.textContent = "Ready";
+        questionText.textContent = "Press Start";
+        return;
+      }
+
+      const { table, factor } = state.currentQuestion;
+      questionText.textContent = `${table} × ${factor}`;
+      questionModeLabel.textContent =
+        state.mode === "diagnostic"
+          ? "Diagnostic Question"
+          : `${table} Times Table Practice`;
+    }
+
+    function askNextQuestion() {
+      state.currentAnswer = "";
+      updateAnswerDisplay();
+
+      if (state.mode === "diagnostic") {
+        if (state.diagnosticQueue.length === 0) {
+          finishDiagnostic();
+          return;
+        }
+        const next = state.diagnosticQueue.shift();
+        state.currentQuestion = {
+          table: next.table,
+          factor: next.factor,
+          answer: next.table * next.factor
+        };
+      } else if (state.mode === "practice" && state.currentTable) {
+        state.currentQuestion = makeQuestion(state.currentTable);
+      } else {
+        state.currentQuestion = null;
+      }
+
+      state.timerRemaining = QUESTION_TIME_SECONDS;
+      showCurrentQuestion();
+      updateCountdownBar();
+      startQuestionTimer();
+      saveState();
+    }
+
+    function startQuestionTimer() {
+      stopQuestionTimer();
+      state.timerInterval = setInterval(() => {
+        state.timerRemaining -= 1;
+        updateCountdownBar();
+
+        if (state.timerRemaining <= 0) {
+          handleTimeout();
+        }
+      }, 1000);
+    }
+
+    function recordResult(isCorrect, wasTimeout = false) {
+      const table = state.currentQuestion.table;
+      const stat = state.stats[table];
+      stat.asked += 1;
+      if (isCorrect) stat.correct += 1;
+      if (wasTimeout) stat.timeout += 1;
+      renderTables();
+      saveState();
+    }
+
+    function handleTimeout() {
+      stopQuestionTimer();
+      if (!state.currentQuestion) return;
+      recordResult(false, true);
+      setStatus(`Time ran out. ${state.currentQuestion.table} × ${state.currentQuestion.factor} = ${state.currentQuestion.answer}.`);
+      askNextQuestion();
+    }
+
+    function submitAnswer() {
+      if (!state.currentQuestion) return;
+      stopQuestionTimer();
+
+      const numericAnswer = parseInt(state.currentAnswer, 10);
+      const isCorrect = numericAnswer === state.currentQuestion.answer;
+
+      recordResult(isCorrect, false);
+
+      if (isCorrect) {
+        setStatus(`Correct: ${state.currentQuestion.table} × ${state.currentQuestion.factor} = ${state.currentQuestion.answer}.`);
+      } else {
+        setStatus(`Not correct: ${state.currentQuestion.table} × ${state.currentQuestion.factor} = ${state.currentQuestion.answer}.`);
+      }
+
+      askNextQuestion();
+    }
+
+    function finishDiagnostic() {
+      stopQuestionTimer();
+      state.mode = "idle";
+      state.currentQuestion = null;
+      state.currentTable = null;
+      questionModeLabel.textContent = "Diagnostic Complete";
+      questionText.textContent = "Tap a weak table to practise";
+      setStatus("Diagnostic complete. Tables shown in red or amber are the ones to work on next.");
+      setModeButtons();
+      renderTables();
+      saveState();
+    }
+
+    function startDiagnostic() {
+      stopQuestionTimer();
+      state.mode = "diagnostic";
+      state.currentTable = null;
+      state.selectedTable = null;
+      state.diagnosticQueue = buildDiagnosticQueue();
+      setModeButtons();
+      renderTables();
+      setStatus("Diagnostic started. You have 8 seconds per question.");
+      askNextQuestion();
+    }
+
+    function startTablePractice(table) {
+      stopQuestionTimer();
+      state.mode = "practice";
+      state.currentTable = table;
+      state.selectedTable = table;
+      setModeButtons();
+      renderTables();
+      setStatus(`Practising the ${table} times table. Keep going until it turns green.`);
+      askNextQuestion();
+    }
+
+    function startRandomPractice() {
+      stopQuestionTimer();
+      state.mode = "practice";
+      state.currentTable = Math.floor(Math.random() * 12) + 1;
+      state.selectedTable = state.currentTable;
+      setModeButtons();
+      renderTables();
+      setStatus(`Random practice started. Current focus: ${state.currentTable} times table.`);
+      askNextQuestion();
+    }
+
+    function stopSession() {
+      stopQuestionTimer();
+      state.mode = "idle";
+      state.currentTable = null;
+      state.currentQuestion = null;
+      state.selectedTable = null;
+      state.currentAnswer = "";
+      updateAnswerDisplay();
+      showCurrentQuestion();
+      setStatus("Session stopped. Press Start Diagnostic or tap a table on the right.");
+      setModeButtons();
+      renderTables();
+      saveState();
+    }
+
+    function resetProgress() {
+      stopQuestionTimer();
+      state.stats = buildDefaultStats();
+      state.diagnosticQueue = [];
+      state.currentQuestion = null;
+      state.currentAnswer = "";
+      state.mode = "idle";
+      state.currentTable = null;
+      state.selectedTable = null;
+      updateAnswerDisplay();
+      showCurrentQuestion();
+      renderTables();
+      setModeButtons();
+      setStatus("Progress reset. You can run the diagnostic again from the start.");
+      saveState();
+    }
+
+    function handleKeypadInput(value) {
+      if (value === "⌫") {
+        state.currentAnswer = state.currentAnswer.slice(0, -1);
+      } else if (value === "↵") {
+        submitAnswer();
+        return;
+      } else {
+        if (state.currentAnswer.length < 3) {
+          state.currentAnswer += value;
+        }
+      }
+
+      updateAnswerDisplay();
+      saveState();
+    }
+
+    startDiagnosticButton.addEventListener("click", startDiagnostic);
+    randomPracticeButton.addEventListener("click", startRandomPractice);
+    resetProgressButton.addEventListener("click", resetProgress);
+    stopSessionButton.addEventListener("click", stopSession);
+    submitAnswerButton.addEventListener("click", submitAnswer);
+    clearAnswerButton.addEventListener("click", () => {
+      state.currentAnswer = "";
+      updateAnswerDisplay();
+      saveState();
+    });
+
+    keypad.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      handleKeypadInput(button.dataset.key);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key >= "0" && event.key <= "9") {
+        handleKeypadInput(event.key);
+      } else if (event.key === "Backspace") {
+        handleKeypadInput("⌫");
+      } else if (event.key === "Enter") {
+        handleKeypadInput("↵");
+      }
+    });
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-GB";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      dictateActivityButton.addEventListener("click", () => {
+        try {
+          recognition.start();
+        } catch (error) {}
+      });
+
+      recognition.addEventListener("start", () => {
+        dictateActivityButton.disabled = true;
+        dictateActivityButton.textContent = "Listening...";
+      });
+
+      recognition.addEventListener("result", (event) => {
+        const transcript = event.results[0][0].transcript.trim();
+        if (activityInstructions.value.trim() !== "") {
+          activityInstructions.value += "\n" + transcript;
+        } else {
+          activityInstructions.value = transcript;
+        }
+        saveState();
+      });
+
+      recognition.addEventListener("end", () => {
+        dictateActivityButton.disabled = false;
+        dictateActivityButton.textContent = "🎤 Dictate";
+      });
+    } else {
+      dictateActivityButton.disabled = true;
+    }
+
+    loadState();
+    if (!state.stats || Object.keys(state.stats).length === 0) {
+      state.stats = buildDefaultStats();
+    }
+    renderTables();
+    updateAnswerDisplay();
+    showCurrentQuestion();
+    updateCountdownBar();
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    setModeButtons();
+  </script>
+</body>
+</html>
