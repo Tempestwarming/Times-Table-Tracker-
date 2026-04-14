@@ -141,6 +141,7 @@
       font-size: 1.55rem;
       font-weight: 800;
       box-shadow: 0 8px 18px rgba(0, 0, 0, 0.07);
+      flex-shrink: 0;
     }
 
     .main-layout {
@@ -284,6 +285,7 @@
       font-weight: 800;
       letter-spacing: 0.02em;
       overflow: hidden;
+      flex-shrink: 0;
     }
 
     .keypad {
@@ -293,6 +295,7 @@
       gap: 8px;
       min-height: 0;
       height: 100%;
+      align-content: stretch;
     }
 
     .keypad button {
@@ -319,15 +322,22 @@
     }
 
     .key-submit {
-      grid-column: span 2;
       background: linear-gradient(135deg, #54d6e6, #2f9fd2) !important;
       color: #0c1b21 !important;
+      font-size: 1rem !important;
     }
 
     .key-clear {
       background: linear-gradient(135deg, #cfeef1, #9edbe8) !important;
       color: #0c1b21 !important;
       font-size: 1rem !important;
+    }
+
+    .key-spacer {
+      visibility: hidden;
+      pointer-events: none;
+      box-shadow: none !important;
+      background: transparent !important;
     }
 
     .right-panel {
@@ -346,6 +356,7 @@
       text-align: center;
       font-size: 1rem;
       font-weight: 800;
+      flex-shrink: 0;
     }
 
     .tables-grid {
@@ -356,6 +367,7 @@
       overflow: auto;
       padding-right: 2px;
       min-height: 0;
+      -webkit-overflow-scrolling: touch;
     }
 
     .table-card {
@@ -407,6 +419,7 @@
       gap: 8px;
       font-size: 0.8rem;
       text-align: center;
+      flex-shrink: 0;
     }
 
     .legend span {
@@ -422,6 +435,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       min-height: 0;
+      flex-shrink: 0;
     }
 
     .note-box {
@@ -437,6 +451,102 @@
       align-items: center;
       justify-content: center;
       text-align: center;
+    }
+
+    .summary-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      display: none;
+      z-index: 10;
+      padding: 18px;
+    }
+
+    .summary-overlay.show {
+      display: block;
+    }
+
+    .summary-card {
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.94);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 14px;
+    }
+
+    .summary-title {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .summary-subtitle {
+      text-align: center;
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .summary-section {
+      background: var(--panel);
+      border: 2px solid rgba(0,0,0,0.10);
+      border-radius: 18px;
+      padding: 14px;
+      overflow: auto;
+    }
+
+    .summary-section h3 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .summary-item {
+      display: grid;
+      grid-template-columns: 80px 1fr 70px;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(0,0,0,0.08);
+      font-weight: 700;
+    }
+
+    .summary-bar {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .summary-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #79e5d9 0%, #39b8df 65%, #2b98d4 100%);
+    }
+
+    .summary-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
     }
 
     @keyframes shimmerFlow {
@@ -491,8 +601,21 @@
         grid-template-columns: 1fr;
       }
 
+      .right-panel {
+        overflow: visible;
+      }
+
       .tables-grid {
         max-height: 320px;
+        overflow: auto;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-actions {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -547,15 +670,18 @@
           <div class="answer-display" id="answerDisplay">0</div>
 
           <div class="keypad" id="keypad">
-            <button type="button" data-key="1">1</button>
-            <button type="button" data-key="2">2</button>
-            <button type="button" data-key="3">3</button>
-            <button type="button" data-key="4">4</button>
-            <button type="button" data-key="5">5</button>
-            <button type="button" data-key="6">6</button>
             <button type="button" data-key="7">7</button>
             <button type="button" data-key="8">8</button>
             <button type="button" data-key="9">9</button>
+
+            <button type="button" data-key="4">4</button>
+            <button type="button" data-key="5">5</button>
+            <button type="button" data-key="6">6</button>
+
+            <button type="button" data-key="1">1</button>
+            <button type="button" data-key="2">2</button>
+            <button type="button" data-key="3">3</button>
+
             <button class="key-submit" type="button" data-key="submit">Submit</button>
             <button type="button" data-key="0">0</button>
             <button class="key-clear" type="button" data-key="clear">Clear</button>
@@ -585,11 +711,36 @@
           Run the diagnostic first, then tap any weak table on the right to practise it until it turns green.
         </div>
       </div>
+
+      <div class="summary-overlay" id="summaryOverlay">
+        <div class="summary-card">
+          <div class="summary-title">Diagnostic Summary</div>
+          <div class="summary-subtitle">Use this to identify the weakest tables first, then tap a table to practise it.</div>
+
+          <div class="summary-grid">
+            <div class="summary-section">
+              <h3>Tables to work on first</h3>
+              <div class="summary-list" id="weakestTablesList"></div>
+            </div>
+
+            <div class="summary-section">
+              <h3>All table results</h3>
+              <div class="summary-list" id="allTablesList"></div>
+            </div>
+          </div>
+
+          <div class="summary-actions">
+            <button class="button" id="closeSummaryButton" type="button">Close Summary</button>
+            <button class="button secondary" id="restartDiagnosticButton" type="button">Run Diagnostic Again</button>
+            <button class="button secondary" id="practiceWeakestButton" type="button">Practise Weakest Table</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = "times_table_diagnostic_v3";
+    const STORAGE_KEY = "times_table_diagnostic_v4";
     const QUESTION_TIME_SECONDS = 10;
     const DIAGNOSTIC_QUESTIONS_PER_TABLE = 3;
     const PRACTICE_TARGET_GREEN = 0.8;
@@ -607,6 +758,13 @@
     const resetProgressButton = document.getElementById("resetProgressButton");
     const stopSessionButton = document.getElementById("stopSessionButton");
     const keypad = document.getElementById("keypad");
+
+    const summaryOverlay = document.getElementById("summaryOverlay");
+    const weakestTablesList = document.getElementById("weakestTablesList");
+    const allTablesList = document.getElementById("allTablesList");
+    const closeSummaryButton = document.getElementById("closeSummaryButton");
+    const restartDiagnosticButton = document.getElementById("restartDiagnosticButton");
+    const practiceWeakestButton = document.getElementById("practiceWeakestButton");
 
     let state = {
       mode: "idle",
@@ -683,6 +841,18 @@
       return "#fde5e8";
     }
 
+    function getSortedTablesWeakestFirst() {
+      return [...TABLES].sort((a, b) => {
+        const aStat = state.stats[a];
+        const bStat = state.stats[b];
+        const aMastery = aStat.asked === 0 ? -1 : getMastery(a);
+        const bMastery = bStat.asked === 0 ? -1 : getMastery(b);
+
+        if (aMastery !== bMastery) return aMastery - bMastery;
+        return a - b;
+      });
+    }
+
     function renderTables() {
       tablesGrid.innerHTML = "";
       TABLES.forEach(table => {
@@ -712,6 +882,82 @@
         card.addEventListener("click", () => startTablePractice(table));
         tablesGrid.appendChild(card);
       });
+    }
+
+    function renderSummary() {
+      weakestTablesList.innerHTML = "";
+      allTablesList.innerHTML = "";
+
+      const sorted = getSortedTablesWeakestFirst();
+      const weakest = sorted.slice(0, 5);
+
+      weakest.forEach(table => {
+        weakestTablesList.appendChild(buildSummaryItem(table));
+      });
+
+      sorted.forEach(table => {
+        allTablesList.appendChild(buildSummaryItem(table));
+      });
+    }
+
+    function buildSummaryItem(table) {
+      const stat = state.stats[table];
+      const mastery = stat.asked ? Math.round(getMastery(table) * 100) : 0;
+
+      const item = document.createElement("div");
+      item.className = "summary-item";
+
+      const tableLabel = document.createElement("div");
+      tableLabel.textContent = `${table}×`;
+
+      const middle = document.createElement("div");
+      const bar = document.createElement("div");
+      bar.className = "summary-bar";
+      const fill = document.createElement("div");
+      fill.className = "summary-bar-fill";
+      fill.style.width = `${mastery}%`;
+
+      if (mastery >= 80) {
+        fill.style.background = "linear-gradient(90deg, #79e59d 0%, #48b56b 100%)";
+      } else if (mastery >= 45) {
+        fill.style.background = "linear-gradient(90deg, #ffd991 0%, #f0ad3d 100%)";
+      } else {
+        fill.style.background = "linear-gradient(90deg, #ffb3a8 0%, #d84f5f 100%)";
+      }
+
+      bar.appendChild(fill);
+
+      const sub = document.createElement("div");
+      sub.style.fontSize = "0.78rem";
+      sub.style.marginTop = "4px";
+      sub.textContent = `${stat.correct}/${stat.asked} correct`;
+
+      middle.appendChild(bar);
+      middle.appendChild(sub);
+
+      const pct = document.createElement("div");
+      pct.textContent = stat.asked ? `${mastery}%` : "—";
+
+      item.appendChild(tableLabel);
+      item.appendChild(middle);
+      item.appendChild(pct);
+
+      item.style.cursor = "pointer";
+      item.addEventListener("click", () => {
+        closeSummary();
+        startTablePractice(table);
+      });
+
+      return item;
+    }
+
+    function openSummary() {
+      renderSummary();
+      summaryOverlay.classList.add("show");
+    }
+
+    function closeSummary() {
+      summaryOverlay.classList.remove("show");
     }
 
     function updateAnswerDisplay() {
@@ -854,14 +1100,16 @@
       state.currentQuestion = null;
       state.currentTable = null;
       questionModeLabel.textContent = "Diagnostic Complete";
-      questionText.textContent = "Tap a weak table to practise";
-      setStatus("Diagnostic complete. Tables shown in red or amber are the ones to work on next.");
+      questionText.textContent = "Open summary";
+      setStatus("Diagnostic complete. Open the summary screen to see the weakest tables first.");
       setModeButtons();
       renderTables();
       saveState();
+      openSummary();
     }
 
     function startDiagnostic() {
+      closeSummary();
       stopQuestionTimer();
       state.mode = "diagnostic";
       state.currentTable = null;
@@ -874,6 +1122,7 @@
     }
 
     function startTablePractice(table) {
+      closeSummary();
       stopQuestionTimer();
       state.mode = "practice";
       state.currentTable = table;
@@ -885,6 +1134,7 @@
     }
 
     function startRandomPractice() {
+      closeSummary();
       stopQuestionTimer();
       state.mode = "practice";
       state.currentTable = Math.floor(Math.random() * 12) + 1;
@@ -896,6 +1146,7 @@
     }
 
     function stopSession() {
+      closeSummary();
       stopQuestionTimer();
       state.mode = "idle";
       state.currentTable = null;
@@ -911,6 +1162,7 @@
     }
 
     function resetProgress() {
+      closeSummary();
       stopQuestionTimer();
       state.stats = buildDefaultStats();
       state.diagnosticQueue = [];
@@ -947,6 +1199,14 @@
     randomPracticeButton.addEventListener("click", startRandomPractice);
     resetProgressButton.addEventListener("click", resetProgress);
     stopSessionButton.addEventListener("click", stopSession);
+
+    closeSummaryButton.addEventListener("click", closeSummary);
+    restartDiagnosticButton.addEventListener("click", startDiagnostic);
+    practiceWeakestButton.addEventListener("click", () => {
+      const weakest = getSortedTablesWeakestFirst()[0];
+      closeSummary();
+      startTablePractice(weakest);
+    });
 
     keypad.addEventListener("click", (event) => {
       const button = event.target.closest("button");
