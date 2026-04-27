@@ -240,11 +240,12 @@
     }
 
     .question-text {
-      font-size: clamp(1.35rem, min(4.2vw, 7.2vh), 3.45rem);
+      font-size: clamp(1.15rem, min(3.8vw, 6.4vh), 3.1rem);
       font-weight: 800;
       line-height: 1.03;
       text-wrap: balance;
       overflow-wrap: anywhere;
+      max-width: 100%;
     }
 
     .timer-wrap {
@@ -661,7 +662,7 @@
       }
 
       .question-text {
-        font-size: clamp(1.35rem, 6vw, 2.2rem);
+        font-size: clamp(1.15rem, min(5.4vw, 5.8vh), 2rem);
       }
 
       .keypad {
@@ -678,34 +679,100 @@
     }
 
     @media (max-width: 520px) {
+      body {
+        align-items: flex-start;
+        overflow: auto;
+      }
+
+      .app-shell {
+        height: auto;
+        min-height: calc(100dvh - 6px);
+        overflow: visible;
+      }
+
+      .app-frame {
+        height: auto;
+        min-height: calc(100dvh - 10px);
+        grid-template-rows: auto auto auto;
+        overflow: visible;
+      }
+
       .main-layout {
-        grid-template-rows: minmax(0, 1.38fr) minmax(0, 0.72fr);
+        grid-template-rows: auto auto;
+        overflow: visible;
       }
 
       .left-panel {
-        grid-template-rows: auto auto auto auto 1fr;
+        grid-template-rows: auto auto auto auto auto;
+        overflow: visible;
+        --key-number-size: clamp(1.15rem, 8vw, 1.8rem);
+        --answer-number-size: clamp(1.45rem, 9vw, 2.1rem);
+        --key-command-size: clamp(0.76rem, 4.2vw, 0.95rem);
+      }
+
+      .mode-bar {
+        gap: 5px;
+      }
+
+      .button {
+        min-height: 36px;
+        padding: 8px 6px;
+        font-size: clamp(0.68rem, 3.4vw, 0.82rem);
       }
 
       .question-card {
-        min-height: 64px;
+        min-height: 0;
+        padding: 8px;
+      }
+
+      .question-label {
+        font-size: clamp(0.68rem, 3.2vw, 0.78rem);
+      }
+
+      .question-text {
+        font-size: clamp(1rem, 7.5vw, 1.65rem);
+        line-height: 1.05;
       }
 
       .answer-display {
-        width: min(132px, 42vw);
+        width: min(150px, 46vw);
+        min-height: 46px;
+      }
+
+      .keypad {
+        grid-auto-rows: clamp(46px, 11.5vw, 58px);
+        height: auto;
+      }
+
+      .keypad button {
+        min-height: 46px;
       }
 
       .tables-grid {
-        grid-template-columns: repeat(6, 1fr);
-        grid-template-rows: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, minmax(58px, auto));
+        height: auto;
+        overflow: visible;
       }
 
       .table-card {
-        min-height: 42px;
+        min-height: 58px;
       }
 
-      .table-stats,
+      .table-number {
+        font-size: clamp(1rem, 5.5vw, 1.45rem);
+      }
+
+      .table-stats {
+        font-size: clamp(0.54rem, 2.8vw, 0.68rem);
+      }
+
       .table-mastered {
-        display: none;
+        font-size: clamp(0.52rem, 2.6vw, 0.66rem);
+      }
+
+      .bottom-notes {
+        grid-template-columns: 1fr;
       }
 
       .legend span {
@@ -745,7 +812,7 @@
 
           <div class="question-card">
             <div class="question-label" id="questionModeLabel">Ready</div>
-            <div class="question-text" id="questionText">Start Diagnostic or Random Practice</div>
+            <div class="question-text" id="questionText">Start Diagnostic<br>or Random Practice</div>
           </div>
 
           <div class="timer-wrap">
@@ -1096,7 +1163,7 @@
     function showCurrentQuestion() {
       if (!state.currentQuestion) {
         questionModeLabel.textContent = "Choose a mode";
-        questionText.textContent = "Start Diagnostic or Random Practice";
+        questionText.innerHTML = "Start Diagnostic<br>or Random Practice";
         return;
       }
 
